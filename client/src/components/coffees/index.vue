@@ -14,20 +14,25 @@
         <div>ชื่อเมนู: {{ coffee.name }}</div>
         <div>ราคา: {{ coffee.price }}</div>
         <div>ประเภท: {{ coffee.type }}</div>
+        <div>สถานะ: {{ coffee.status }}</div> <!-- ✅ เพิ่มบรรทัดนี้ -->
 
-        <!-- ⭐ ปุ่มตามแนวอาจารย์ -->
         <p>
+          <!-- ทุกคนดูรายละเอียดได้ -->
           <button @click="navigateTo('/coffee/' + coffee.id)">
             ดูรายละเอียด
           </button>
 
-          <button @click="navigateTo('/coffee/edit/' + coffee.id)">
-            แก้ไข
-          </button>
+          <!-- 🔒 ปุ่มจัดการ แสดงเฉพาะตอน Login -->
+          <template v-if="isLoggedIn">
+            <button @click="navigateTo('/coffee/edit/' + coffee.id)">
+              แก้ไข
+            </button>
 
-          <button @click="deleteCoffee(coffee)">
-            ลบเมนู
-          </button>
+            <!-- ✅ ส่ง id แทน object -->
+            <button @click="deleteCoffee(coffee.id)">
+              ลบเมนู
+            </button>
+          </template>
         </p>
 
         <hr />
@@ -42,6 +47,7 @@
 
 <script>
 import CoffeesService from '../../services/CoffeesService'
+import { useAuthenStore } from '../../stores/authen'
 
 export default {
   data () {
@@ -54,16 +60,23 @@ export default {
     this.refreshData()
   },
 
+  computed: {
+    isLoggedIn () {
+      const authenStore = useAuthenStore()
+      return authenStore.isUserLoggedIn
+    }
+  },
+
   methods: {
     navigateTo (route) {
       this.$router.push(route)
     },
 
-    async deleteCoffee (coffee) {
-      let result = confirm('Want to delete?')
+    async deleteCoffee (coffeeId) {   // ✅ รับ id
+      const result = confirm('Want to delete?')
       if (result) {
         try {
-          await CoffeesService.delete(coffee)
+          await CoffeesService.delete(coffeeId) // ✅ ส่ง id
           this.refreshData()
         } catch (err) {
           console.log(err)
