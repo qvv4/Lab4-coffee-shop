@@ -1,3 +1,3 @@
 # nv-webblog68
-thanaphat teeraphatchararunksi
+Chayanit Luerueang
 CSIT
